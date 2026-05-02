@@ -21,15 +21,28 @@ export default function AdminPage({ onHome, user, profile }) {
   const fullName = [firstName, lastName].filter(Boolean).join(' ').toUpperCase() || 'ADMIN'
 
   const fetchOrders = async () => {
-    const { data } = await supabase
+    const { data: bookingsData } = await supabase
       .from('bookings')
-      .select('*, profiles(first_name, last_name)')
+      .select('*')
       .order('created_at', { ascending: false })
-    if (data) {
-      setOrders(data)
-      if (!selected && data.find(o => o.status === 'placed')) {
-        setSelected(data.find(o => o.status === 'placed'))
+
+    if (bookingsData && bookingsData.length > 0) {
+      const userIds = [...new Set(bookingsData.map(b => b.user_id))]
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('id, first_name, last_name')
+        .in('id', userIds)
+
+      const profileMap = {}
+      if (profilesData) profilesData.forEach(p => { profileMap[p.id] = p })
+
+      const merged = bookingsData.map(b => ({ ...b, profiles: profileMap[b.user_id] || null }))
+      setOrders(merged)
+      if (!selected && merged.find(o => o.status === 'placed')) {
+        setSelected(merged.find(o => o.status === 'placed'))
       }
+    } else {
+      setOrders([])
     }
     setLoading(false)
   }
