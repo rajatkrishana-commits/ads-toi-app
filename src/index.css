@@ -1,0 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Fraunces:opsz,wght@9..144,300..900&family=Plus+Jakarta+Sans:wght@300..800&family=Manrope:wght@200..800&family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Instrument+Serif:ital@0;1&display=swap');
+
+:root {
+  --toi-red: #d8232a;
+  --toi-red-deep: #b41a20;
+  --toi-ink: #1a1716;
+  --toi-paper: #faf6ee;
+  --toi-cream: #fbf3e3;
+  --toi-mustard: #e8b94a;
+  --toi-leaf: #6b8e3d;
+  --toi-saffron: #f3a13a;
+  --toi-ocean: #1d4d8c;
+  --toi-rose: #f3e3da;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+img { max-width: 100%; display: block; }
+button { font-family: inherit; cursor: pointer; }
+
+@keyframes blink { 50% { opacity: 0; } }
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+.serif { font-family: 'Fraunces', 'Playfair Display', Georgia, serif; }
+.sans { font-family: 'Plus Jakarta Sans', 'Manrope', system-ui, sans-serif; }
+.headline { font-family: 'Fraunces', Georgia, serif; font-weight: 700; letter-spacing: -0.02em; line-height: 0.95; }
+.eyebrow { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; letter-spacing: 0.18em; font-size: 11px; text-transform: uppercase; }
+
+.halftone {
+  background-image: radial-gradient(currentColor 1px, transparent 1.2px);
+  background-size: 6px 6px;
+}
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; }
