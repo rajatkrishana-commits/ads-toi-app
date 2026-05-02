@@ -7,10 +7,10 @@ import Pricing from '../components/home/Pricing'
 import Footer from '../components/home/Footer'
 import MobilePreview from '../components/home/MobilePreview'
 
-export default function HomePage({ onBook, onRegister, onSignIn }) {
+export default function HomePage({ onBook, onRegister, onSignIn, user, profile, onSignOut, onTransactions }) {
   return (
     <div style={{ background: 'var(--toi-paper)', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-      <Header onBook={onBook} onRegister={onRegister} onSignIn={onSignIn} />
+      <Header onBook={onBook} onRegister={onRegister} onSignIn={onSignIn} user={user} profile={profile} onSignOut={onSignOut} onTransactions={onTransactions} />
       <Hero onBook={onBook} />
       <DualCTA onBook={onBook} />
       <Categories onBook={onBook} />

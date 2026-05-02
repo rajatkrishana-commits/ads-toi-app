@@ -1,6 +1,8 @@
 import { AdsTOIWordmark, TOIMasthead } from '../brand'
 
-export default function Header({ onBook, onRegister, onSignIn }) {
+export default function Header({ onBook, onRegister, onSignIn, user, profile, onSignOut, onTransactions }) {
+  const firstName = profile?.first_name || user?.email?.split('@')[0] || ''
+
   return (
     <header style={{ background: 'var(--toi-paper)', borderBottom: '1px solid #e8dcc4' }}>
       <div style={{ background: 'var(--toi-ink)', color: 'var(--toi-paper)', fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 11, padding: '6px 28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', letterSpacing: '0.04em' }}>
@@ -28,8 +30,17 @@ export default function Header({ onBook, onRegister, onSignIn }) {
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--toi-red)', boxShadow: '0 0 0 4px rgba(216,35,42,0.18)' }} />
             1800-1205-474
           </span>
-          <button onClick={onSignIn} style={{ background: 'transparent', color: 'var(--toi-ink)', border: 'none', padding: '10px 14px', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>Sign in</button>
-          <button onClick={onRegister} style={{ background: 'var(--toi-ink)', color: 'var(--toi-paper)', border: 'none', padding: '10px 18px', borderRadius: 999, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>Register</button>
+          {user ? (
+            <>
+              <button onClick={onTransactions} style={{ background: 'transparent', color: 'var(--toi-ink)', border: 'none', padding: '10px 14px', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>Hi, {firstName} ▾</button>
+              <button onClick={onSignOut} style={{ background: 'transparent', color: 'var(--toi-ink)', border: '1.5px solid var(--toi-ink)', padding: '10px 18px', borderRadius: 999, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>Sign out</button>
+            </>
+          ) : (
+            <>
+              <button onClick={onSignIn} style={{ background: 'transparent', color: 'var(--toi-ink)', border: 'none', padding: '10px 14px', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>Sign in</button>
+              <button onClick={onRegister} style={{ background: 'var(--toi-ink)', color: 'var(--toi-paper)', border: 'none', padding: '10px 18px', borderRadius: 999, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>Register</button>
+            </>
+          )}
         </nav>
       </div>
     </header>

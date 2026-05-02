@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
+import { supabase } from '../../lib/supabase'
 import FlowChrome from '../../components/flow/FlowChrome'
 import OrderSummary from '../../components/flow/OrderSummary'
 import FlowFooter from '../../components/flow/FlowFooter'
 
-export default function Step5({ draft, setDraft, goStep, onHome, onConfirm }) {
+export default function Step5({ draft, setDraft, goStep, onHome, onConfirm, user, profile }) {
   const [promo, setPromo] = useState(draft.promo || '')
   const [applied, setApplied] = useState(!!draft.promo)
   const [tnc, setTnc] = useState(false)
@@ -18,10 +19,35 @@ export default function Step5({ draft, setDraft, goStep, onHome, onConfirm }) {
   useEffect(() => { setDraft(d => ({ ...d, promo: applied ? promo : '', discount })) }, [applied, promo])
 
   const apply = () => { if (promo.trim().toUpperCase() === 'HIFIVE') setApplied(true) }
-  const pay = () => { setPaying(true); setTimeout(onConfirm, 1300) }
+
+  const pay = async () => {
+    setPaying(true)
+    const orderId = 'B' + (5700000 + Math.floor(Math.random() * 99999))
+    if (user) {
+      const pub = [draft.pub, draft.edition].filter(Boolean).join(' · ')
+      const { error } = await supabase.from('bookings').insert({
+        order_id: orderId,
+        user_id: user.id,
+        status: 'placed',
+        category: draft.cat || 'Property',
+        design: draft.template || 'Property Template',
+        publication: pub || 'Times of India',
+        pub_date: draft.dates?.[0] || null,
+        amount: total,
+        subtotal,
+        discount,
+        gst,
+        ad_text: draft.adText || '',
+        promo_code: applied ? promo : null,
+      })
+      if (error) console.error('Booking error:', error)
+    }
+    setDraft(d => ({ ...d, orderId }))
+    onConfirm()
+  }
 
   return (
-    <FlowChrome stepIdx={4} goStep={goStep} onHome={onHome} draft={draft}>
+    <FlowChrome stepIdx={4} goStep={goStep} onHome={onHome} draft={draft} profile={profile}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 32, padding: '36px 28px', maxWidth: 1280, margin: '0 auto' }}>
         <div>
           <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 12, fontWeight: 700, color: '#d8232a', letterSpacing: '0.18em', textTransform: 'uppercase' }}>Step 5 of 5 · 30 sec</div>

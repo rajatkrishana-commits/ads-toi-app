@@ -19,7 +19,7 @@ const ToolbarBtn = ({ children }) => (
   <button style={{ all: 'unset', cursor: 'pointer', padding: '6px 10px', borderRadius: 6, fontWeight: 700, fontSize: 12, color: '#1a1716' }}>{children}</button>
 )
 
-export default function Step3({ draft, setDraft, goStep, onHome }) {
+export default function Step3({ draft, setDraft, goStep, onHome, profile }) {
   const initial = draft.body || SAMPLE_BODY[draft.categoryId] || SAMPLE_BODY.default
   const [body, setBody] = useState(initial)
   const [contact, setContact] = useState(draft.contact || 'Contact: ABC XYZ\n+91 98XXX XXXXX')
@@ -48,7 +48,7 @@ export default function Step3({ draft, setDraft, goStep, onHome }) {
   }
 
   return (
-    <FlowChrome stepIdx={2} goStep={goStep} onHome={onHome} draft={draft}>
+    <FlowChrome stepIdx={2} goStep={goStep} onHome={onHome} draft={draft} profile={profile}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 32, padding: '36px 28px', maxWidth: 1280, margin: '0 auto' }}>
         <div>
           <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 12, fontWeight: 700, color: '#d8232a', letterSpacing: '0.18em', textTransform: 'uppercase' }}>Step 3 of 5 · 3 min</div>

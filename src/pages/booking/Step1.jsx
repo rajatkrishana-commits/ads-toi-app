@@ -19,14 +19,14 @@ const CATS = [
   { id: 'services', name: 'Services', sub: 'Local pros', color: '#bb6b3e', emoji: '🛠️' },
 ]
 
-export default function Step1({ draft, setDraft, goStep, onHome }) {
+export default function Step1({ draft, setDraft, goStep, onHome, profile }) {
   const [search, setSearch] = useState('')
   const filtered = CATS.filter(c => !search || (c.name + ' ' + c.sub).toLowerCase().includes(search.toLowerCase()))
   const selected = draft.categoryId
   const pick = (c) => setDraft({ ...draft, categoryId: c.id, category: c.name, categoryColor: c.color })
 
   return (
-    <FlowChrome stepIdx={0} goStep={goStep} onHome={onHome} draft={draft}>
+    <FlowChrome stepIdx={0} goStep={goStep} onHome={onHome} draft={draft} profile={profile}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 32, padding: '36px 28px', maxWidth: 1280, margin: '0 auto' }}>
         <div>
           <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 12, fontWeight: 700, color: '#d8232a', letterSpacing: '0.18em', textTransform: 'uppercase' }}>Step 1 of 5 · 2 min</div>

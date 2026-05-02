@@ -15,7 +15,7 @@ const Field = ({ label, children }) => (
   </div>
 )
 
-export default function Step4({ draft, setDraft, goStep, onHome }) {
+export default function Step4({ draft, setDraft, goStep, onHome, profile }) {
   const [city, setCity] = useState(draft.city || 'Mumbai')
   const [edition, setEdition] = useState(draft.edition || 'Times of India · Mumbai')
   const [date, setDate] = useState(draft.date || '28-04-2026')
@@ -35,7 +35,7 @@ export default function Step4({ draft, setDraft, goStep, onHome }) {
   const accent = draft.templateAccent || draft.categoryColor || '#1d4d8c'
 
   return (
-    <FlowChrome stepIdx={3} goStep={goStep} onHome={onHome} draft={draft}>
+    <FlowChrome stepIdx={3} goStep={goStep} onHome={onHome} draft={draft} profile={profile}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 32, padding: '36px 28px', maxWidth: 1280, margin: '0 auto' }}>
         <div>
           <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 12, fontWeight: 700, color: '#d8232a', letterSpacing: '0.18em', textTransform: 'uppercase' }}>Step 4 of 5 · 1 min</div>

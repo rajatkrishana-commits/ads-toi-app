@@ -8,7 +8,7 @@ export const FLOW_STEPS = [
   { key: 'pay', label: 'Pay' },
 ]
 
-export default function FlowChrome({ stepIdx, goStep, onHome, draft, children, hideStepper }) {
+export default function FlowChrome({ stepIdx, goStep, onHome, draft, children, hideStepper, profile }) {
   return (
     <div style={{ background: '#faf6ee', minHeight: '100vh', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
       <header style={{ background: '#fff', borderBottom: '1px solid #e8dcc4', padding: '12px 28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 20 }}>
@@ -28,7 +28,7 @@ export default function FlowChrome({ stepIdx, goStep, onHome, draft, children, h
             <option>EN</option><option>हिन्दी</option><option>मराठी</option><option>ગુજરાતી</option><option>தமிழ்</option>
           </select>
           <a style={{ color: '#1a1716', fontWeight: 600, cursor: 'pointer' }}>📞 Need help?</a>
-          <span style={{ color: '#5e5045' }}>Hi, Rajat ▾</span>
+          <span style={{ color: '#5e5045' }}>Hi, {profile?.first_name || 'there'} ▾</span>
         </div>
       </header>
 

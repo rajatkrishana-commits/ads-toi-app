@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { supabase } from '../lib/supabase'
 import { AdsTOIWordmark, TOIMasthead, SampleAdForSale } from '../components/brand'
 
 const TX_STATUSES = {
@@ -11,18 +12,22 @@ const TX_STATUSES = {
   rejected: { label: 'Rejected by moderator', color: '#a72c1a', bg: '#fde4d8', dot: '#d8232a' },
 }
 
-const ORDERS = [
-  { id: 'B5966606', booked: '20-04-2026', cat: 'Property', design: 'Property Template-7', pubDate: '05-05-2026', status: 'placed', amount: 990, pub: 'Times of India · Mumbai' },
-  { id: 'B5966588', booked: '21-04-2026', cat: 'Display', design: 'Display Realty Artwork', pubDate: '20-04-2026', status: 'draft', amount: 4500, pub: 'Times of India · Delhi' },
-  { id: 'B5966540', booked: '16-03-2026', cat: 'Education', design: 'Education Template-1', pubDate: '21-03-2026', status: 'differential', amount: 1245, pub: 'Times of India · Bengaluru' },
-  { id: 'B5966437', booked: '17-03-2026', cat: 'Property', design: 'Property Template-7', pubDate: '24-03-2026', status: 'paysuccess', amount: 990, pub: 'Times of India · Mumbai' },
-  { id: 'B5966428', booked: '01-03-2026', cat: 'Property', design: 'Property Template-7', pubDate: '21-04-2026', status: 'placed', amount: 990, pub: 'Times of India · Mumbai' },
-  { id: 'B5966420', booked: '14-02-2026', cat: 'Property', design: 'Regular Text Ad', pubDate: '20-02-2026', status: 'draft', amount: 495, pub: 'Times of India · Pune' },
-  { id: 'B5966401', booked: '10-02-2026', cat: 'Property', design: 'Property Template-7', pubDate: '17-02-2026', status: 'placed', amount: 1485, pub: 'Times of India · Mumbai' },
-  { id: 'B5966399', booked: '17-02-2026', cat: 'Property', design: 'Property Template-7', pubDate: '23-02-2026', status: 'rejected', amount: 990, pub: 'Times of India · Mumbai' },
-  { id: 'B5966324', booked: '01-02-2026', cat: 'Personal', design: 'Regular Text Ad', pubDate: '08-02-2026', status: 'placed', amount: 360, pub: 'Times of India · Delhi' },
-  { id: 'B5965706', booked: '31-01-2026', cat: 'Property', design: 'Property Template-7', pubDate: '12-02-2026', status: 'draft', amount: 990, pub: 'Times of India · Bengaluru' },
-]
+const fmtDate = (iso) => {
+  if (!iso) return '—'
+  const d = new Date(iso)
+  return [String(d.getDate()).padStart(2, '0'), String(d.getMonth() + 1).padStart(2, '0'), d.getFullYear()].join('-')
+}
+
+const mapBooking = (row) => ({
+  id: row.order_id,
+  booked: fmtDate(row.created_at),
+  cat: row.category || 'Property',
+  design: row.design || 'Template',
+  pubDate: row.pub_date || '—',
+  status: row.status || 'placed',
+  amount: row.amount || 0,
+  pub: row.publication || 'Times of India',
+})
 
 const StatusPill = ({ s }) => {
   const c = TX_STATUSES[s] || TX_STATUSES.placed
@@ -98,7 +103,9 @@ const TxRow = ({ o, onContinue }) => {
   )
 }
 
-export default function TransactionsPage({ onHome, onContinueDraft, onSignOut }) {
+export default function TransactionsPage({ onHome, onContinueDraft, onSignOut, user, profile }) {
+  const [orders, setOrders] = useState([])
+  const [loadingOrders, setLoadingOrders] = useState(true)
   const [statusFilter, setStatusFilter] = useState('all')
   const [catFilter, setCatFilter] = useState('all')
   const [search, setSearch] = useState('')
@@ -106,17 +113,32 @@ export default function TransactionsPage({ onHome, onContinueDraft, onSignOut })
   const [view, setView] = useState('list')
   const [sort, setSort] = useState('newest')
 
-  const filtered = ORDERS.filter(o => {
+  useEffect(() => {
+    if (!user) { setLoadingOrders(false); return }
+    supabase
+      .from('bookings')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .then(({ data }) => {
+        setOrders(data ? data.map(mapBooking) : [])
+        setLoadingOrders(false)
+      })
+  }, [user])
+
+  const firstName = profile?.first_name || user?.email?.split('@')[0] || 'there'
+
+  const filtered = orders.filter(o => {
     if (statusFilter !== 'all' && o.status !== statusFilter) return false
     if (catFilter !== 'all' && o.cat !== catFilter) return false
     if (search && !(o.id + o.design + o.cat + o.pub).toLowerCase().includes(search.toLowerCase())) return false
     return true
   })
 
-  const totalSpend = ORDERS.reduce((s, o) => s + (o.status !== 'draft' ? o.amount : 0), 0)
-  const drafts = ORDERS.filter(o => o.status === 'draft').length
-  const actionNeeded = ORDERS.filter(o => o.status === 'pending' || o.status === 'differential' || o.status === 'rejected').length
-  const upcoming = ORDERS.filter(o => o.status === 'placed' || o.status === 'paysuccess').length
+  const totalSpend = orders.reduce((s, o) => s + (o.status !== 'draft' ? o.amount : 0), 0)
+  const drafts = orders.filter(o => o.status === 'draft').length
+  const actionNeeded = orders.filter(o => o.status === 'pending' || o.status === 'differential' || o.status === 'rejected').length
+  const upcoming = orders.filter(o => o.status === 'placed' || o.status === 'paysuccess').length
 
   return (
     <div style={{ minHeight: '100vh', background: '#faf6ee', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
@@ -131,7 +153,7 @@ export default function TransactionsPage({ onHome, onContinueDraft, onSignOut })
           <a style={{ cursor: 'pointer' }}>Pricing</a>
           <a style={{ color: '#d8232a', fontWeight: 800, borderBottom: '2px solid #d8232a', paddingBottom: 4 }}>My account ▾</a>
           <a style={{ cursor: 'pointer' }}>Help</a>
-          <span style={{ color: '#5e5045' }}>Hi, <b style={{ color: '#1a1716' }}>Rajat</b></span>
+          <span style={{ color: '#5e5045' }}>Hi, <b style={{ color: '#1a1716' }}>{firstName}</b></span>
           <button onClick={onSignOut} style={{ background: 'transparent', border: '1.5px solid #1a1716', color: '#1a1716', padding: '8px 16px', borderRadius: 999, fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>Log out</button>
         </nav>
       </header>
@@ -158,7 +180,7 @@ export default function TransactionsPage({ onHome, onContinueDraft, onSignOut })
             <div>
               <div style={{ fontSize: 11, fontWeight: 800, color: '#d8232a', letterSpacing: '0.18em', textTransform: 'uppercase' }}>My Account</div>
               <h1 style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: 52, fontWeight: 800, letterSpacing: '-0.025em', margin: '6px 0 4px', color: '#1a1716', lineHeight: 1 }}>My <i style={{ color: '#d8232a', fontWeight: 500 }}>transactions</i></h1>
-              <p style={{ fontFamily: "'Fraunces', Georgia, serif", color: '#5e5045', fontSize: 16, marginTop: 4 }}>{ORDERS.length} bookings · last activity 21 Apr 2026</p>
+              <p style={{ fontFamily: "'Fraunces', Georgia, serif", color: '#5e5045', fontSize: 16, marginTop: 4 }}>{loadingOrders ? 'Loading…' : `${orders.length} booking${orders.length !== 1 ? 's' : ''}`}</p>
             </div>
             <div style={{ display: 'flex', gap: 10 }}>
               <button style={{ background: 'transparent', border: '1.5px solid #1a1716', color: '#1a1716', padding: '10px 18px', borderRadius: 999, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>⤓ Export CSV</button>
@@ -167,7 +189,7 @@ export default function TransactionsPage({ onHome, onContinueDraft, onSignOut })
           </div>
 
           <div style={{ marginTop: 28, display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
-            <StatCard label="Total spend" value={`₹ ${(totalSpend / 1000).toFixed(1)}k`} sub="Across 7 paid orders" accent="#1a1716" />
+            <StatCard label="Total spend" value={`₹ ${(totalSpend / 1000).toFixed(1)}k`} sub={`Across ${orders.filter(o => o.status !== 'draft').length} paid orders`} accent="#1a1716" />
             <StatCard label="Drafts" value={drafts} sub="Saved · finish anytime" accent="#e8b94a" />
             <StatCard label="Action needed" value={actionNeeded} sub="Pending payment / rejected" accent="#d8232a" />
             <StatCard label="Upcoming print" value={upcoming} sub="Will run in next 30 days" accent="#3d5e1e" />
@@ -219,7 +241,7 @@ export default function TransactionsPage({ onHome, onContinueDraft, onSignOut })
               <option value="amount-l">₹ Low → high</option>
             </select>
             <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 12 }}>
-              <span style={{ fontSize: 12, color: '#5e5045' }}>{filtered.length} of {ORDERS.length}</span>
+              <span style={{ fontSize: 12, color: '#5e5045' }}>{filtered.length} of {orders.length}</span>
               <div style={{ display: 'flex', background: '#fbf3e3', borderRadius: 8, padding: 3, border: '1px solid #e8dcc4' }}>
                 <button onClick={() => setView('list')} style={{ all: 'unset', cursor: 'pointer', padding: '6px 12px', borderRadius: 6, background: view === 'list' ? '#1a1716' : 'transparent', color: view === 'list' ? '#fff' : '#5e5045', fontWeight: 700, fontSize: 12 }}>☰ List</button>
                 <button onClick={() => setView('grid')} style={{ all: 'unset', cursor: 'pointer', padding: '6px 12px', borderRadius: 6, background: view === 'grid' ? '#1a1716' : 'transparent', color: view === 'grid' ? '#fff' : '#5e5045', fontWeight: 700, fontSize: 12 }}>▦ Grid</button>
@@ -228,11 +250,13 @@ export default function TransactionsPage({ onHome, onContinueDraft, onSignOut })
           </div>
 
           <div style={{ marginTop: 16, display: view === 'grid' ? 'grid' : 'flex', gridTemplateColumns: view === 'grid' ? 'repeat(2, 1fr)' : undefined, flexDirection: view === 'grid' ? undefined : 'column', gap: 14 }}>
-            {filtered.length === 0 ? (
+            {loadingOrders ? (
+              <div style={{ padding: 64, textAlign: 'center', color: '#5e5045', fontSize: 16 }}>Loading your bookings…</div>
+            ) : filtered.length === 0 ? (
               <div style={{ padding: 64, textAlign: 'center', background: '#fff', border: '1px dashed #d8c7a3', borderRadius: 14, color: '#5e5045' }}>
                 <div style={{ fontSize: 40 }}>🗞</div>
-                <div style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: 22, fontWeight: 700, color: '#1a1716', marginTop: 8 }}>No matching orders</div>
-                <div style={{ fontSize: 13, marginTop: 4 }}>Try clearing filters or change the date range.</div>
+                <div style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: 22, fontWeight: 700, color: '#1a1716', marginTop: 8 }}>{orders.length === 0 ? 'No bookings yet' : 'No matching orders'}</div>
+                <div style={{ fontSize: 13, marginTop: 4 }}>{orders.length === 0 ? 'Book your first ad to see it here.' : 'Try clearing filters or change the date range.'}</div>
               </div>
             ) : filtered.map(o => <TxRow key={o.id} o={o} onContinue={onContinueDraft} />)}
           </div>

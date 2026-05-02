@@ -44,7 +44,7 @@ const FormatThumb = ({ icon }) => {
   )
 }
 
-export default function Step2({ draft, setDraft, goStep, onHome }) {
+export default function Step2({ draft, setDraft, goStep, onHome, profile }) {
   const [tab, setTab] = useState('format')
 
   const pickFormat = (f) => setDraft({ ...draft, formatId: f.id, format: f.name, size: f.size, subtotal: f.id === 'displayN' ? 2400 : f.id === 'text' ? 495 : f.id === 'forum' ? 750 : 990 })
@@ -59,7 +59,7 @@ export default function Step2({ draft, setDraft, goStep, onHome }) {
   const ready = draft.formatId && (draft.formatId === 'text' ? true : draft.templateId)
 
   return (
-    <FlowChrome stepIdx={1} goStep={goStep} onHome={onHome} draft={draft}>
+    <FlowChrome stepIdx={1} goStep={goStep} onHome={onHome} draft={draft} profile={profile}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 32, padding: '36px 28px', maxWidth: 1280, margin: '0 auto' }}>
         <div>
           <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 12, fontWeight: 700, color: '#d8232a', letterSpacing: '0.18em', textTransform: 'uppercase' }}>Step 2 of 5 · 1 min</div>
