@@ -40,7 +40,11 @@ export default function Step5({ draft, setDraft, goStep, onHome, onConfirm, user
         ad_text: draft.adText || '',
         promo_code: applied ? promo : null,
       })
-      if (error) console.error('Booking error:', error)
+      if (error) {
+        setPaying(false)
+        alert('Could not save booking: ' + error.message)
+        return
+      }
     }
     setDraft(d => ({ ...d, orderId }))
     onConfirm()

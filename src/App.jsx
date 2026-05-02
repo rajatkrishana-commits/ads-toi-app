@@ -104,7 +104,7 @@ export default function App() {
     if (stepIdx === 4) return <Step5 {...props} onConfirm={() => setView('done')} />
   }
 
-  if (view === 'done') return <ConfirmPage draft={draft} onAdmin={() => setView('admin')} onHome={goHome} />
+  if (view === 'done') return <ConfirmPage draft={draft} onAdmin={() => setView('admin')} onHome={goHome} user={user} profile={profile} />
   if (view === 'admin') return <AdminPage onHome={goHome} user={user} profile={profile} />
 
   return (

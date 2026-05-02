@@ -1,12 +1,12 @@
 import FlowChrome from '../../components/flow/FlowChrome'
 
-export default function ConfirmPage({ draft, onAdmin, onHome }) {
+export default function ConfirmPage({ draft, onAdmin, onHome, user, profile }) {
   return (
-    <FlowChrome stepIdx={5} goStep={() => {}} onHome={onHome} draft={draft} hideStepper>
+    <FlowChrome stepIdx={5} goStep={() => {}} onHome={onHome} draft={draft} hideStepper profile={profile}>
       <div style={{ padding: '60px 28px', textAlign: 'center', maxWidth: 760, margin: '0 auto' }}>
         <div style={{ width: 96, height: 96, background: '#dde8d6', borderRadius: '50%', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 48, color: '#3d5e1e' }}>✓</div>
         <h1 className="headline serif" style={{ fontSize: 64, color: '#1a1716', margin: '20px 0 8px' }}>You're <i style={{ color: '#d8232a', fontWeight: 500 }}>booked!</i></h1>
-        <p style={{ fontFamily: "'Fraunces', Georgia, serif", color: '#5e5045', fontSize: 18 }}>Order ID <b style={{ color: '#1a1716' }}>B5745325</b> · receipt sent to <b>rajat@example.com</b></p>
+        <p style={{ fontFamily: "'Fraunces', Georgia, serif", color: '#5e5045', fontSize: 18 }}>Order ID <b style={{ color: '#1a1716' }}>{draft.orderId || '—'}</b> · receipt sent to <b>{user?.email || '—'}</b></p>
 
         <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 18, flexWrap: 'wrap' }}>
           {['📥 Download receipt', '🗓 Add to calendar', '📲 Send to WhatsApp', '🔔 Notify me when live'].map(l => (
